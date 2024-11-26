@@ -1,0 +1,29 @@
+org: npbrito
+service: azul-board-game-api-${env:ENVIROMENT}
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  ecr:
+    images:
+      lambdaFunction:
+        path: ./
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource:
+            - Fn::GetAtt: [UsersTable, Arn]
+  environment:
+    DYNAMO_DB_TABLE_NAME: ${env:DYNAMO_DB_TABLE_NAME}
+
+functions:
+  api:
+    image:
+      name: lambdaFunction
+    handler: handler.invoke
+    events:
+      - httpApi: "*"
+      - cors: true
